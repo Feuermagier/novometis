@@ -13,6 +13,11 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
+set(RELEVANT_RPATHS 
+    "$ORIGIN" 
+    "$ORIGIN/../../torch/lib"
+)
+
 add_subdirectory("pinocchio_isolation/")
 
 # Find Torch
@@ -42,12 +47,22 @@ target_include_directories(torch_server_ops PUBLIC ${COMMON_INCLUDE_DIRS})
 target_link_libraries(torch_server_ops PRIVATE
     ${TORCH_LIBRARIES}
 )
+set_target_properties(torch_server_ops PROPERTIES 
+    INSTALL_RPATH "${RELEVANT_RPATHS}"
+    INSTALL_RPATH_USE_LINK_PATH TRUE
+    BUILD_WITH_INSTALL_RPATH TRUE
+)
 
 add_library(torchrot SHARED src/rotations.cpp)
 set_target_properties(torchrot PROPERTIES CXX_VISIBILITY_PRESET hidden)
 target_include_directories(torchrot PUBLIC ${COMMON_INCLUDE_DIRS})
 target_link_libraries(torchrot PRIVATE
     ${TORCH_LIBRARIES}
+)
+set_target_properties(torchrot PROPERTIES 
+    INSTALL_RPATH "${RELEVANT_RPATHS}"
+    INSTALL_RPATH_USE_LINK_PATH TRUE
+    BUILD_WITH_INSTALL_RPATH TRUE
 )
 
 add_library(torchscript_pinocchio SHARED src/pinocchio.cpp)
@@ -58,6 +73,11 @@ target_link_libraries(torchscript_pinocchio PRIVATE
     ${TORCH_LIBRARIES}
     torchrot
 )
+set_target_properties(torchscript_pinocchio PROPERTIES 
+    INSTALL_RPATH "${RELEVANT_RPATHS}"
+    INSTALL_RPATH_USE_LINK_PATH TRUE
+    BUILD_WITH_INSTALL_RPATH TRUE
+)
 
 # by default, set the install prefix to the conda environment
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
@@ -65,4 +85,6 @@ if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 endif()
 
 # installs to $CONDA_PREFIX/lib/libtorchscript_pinocchio.so by default
-install(TARGETS torchrot torchscript_pinocchio DESTINATION lib)
+# install(TARGETS torchrot torchscript_pinocchio DESTINATION lib)
+install(TARGETS torchrot torchscript_pinocchio torch_server_ops 
+        DESTINATION polymetis/lib)

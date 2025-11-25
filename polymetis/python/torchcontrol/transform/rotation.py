@@ -9,13 +9,31 @@ from ctypes.util import find_library
 import torch
 
 # load the custom C++ library for rotation operations
-torchrot = find_library("torchrot")
-if torchrot is None:
-    raise ImportError(
-        "Could not find 'libtorchrot.so' library. "
-        "Make sure it is built and available in the library path."
-    )
-torch.classes.load_library(torchrot)
+# torchrot = find_library("torchrot")
+# if torchrot is None:
+#     raise ImportError(
+#         "Could not find 'libtorchrot.so' library. "
+#         "Make sure it is built and available in the library path."
+#     )
+# torch.classes.load_library(torchrot)
+
+
+def load_torch_library(lib_name):
+    import os
+    import sysconfig
+
+    filename = f"lib{lib_name}.so"
+    site_packages = sysconfig.get_paths()["platlib"]
+
+    # Check site-packages/polymetis/lib/libname.so
+    installed_path = os.path.join(site_packages, "polymetis", "lib", filename)
+
+    if not os.path.exists(installed_path):
+        raise FileNotFoundError(f"Could not find {filename} at {installed_path}")
+
+    torch.classes.load_library(installed_path)
+
+load_torch_library("torchrot")
 
 functional = torch.ops.torchrot
 
@@ -131,9 +149,9 @@ def from_matrix(matrix: torch.Tensor) -> RotationObj:
     Returns:
         Resulting RotationObj
     """
-    assert matrix.shape == torch.Size(
-        [3, 3]
-    ), f"Invalid rotation matrix shape: {matrix.shape}"
+    assert matrix.shape == torch.Size([3, 3]), (
+        f"Invalid rotation matrix shape: {matrix.shape}"
+    )
     return RotationObj(torch.ops.torchrot.matrix2quat(matrix))
 
 
@@ -146,9 +164,9 @@ def from_rotvec(rotvec: torch.Tensor) -> RotationObj:
     Returns:
         Resulting RotationObj
     """
-    assert rotvec.shape == torch.Size(
-        [3]
-    ), f"Invalid rotation vector shape: {rotvec.shape}"
+    assert rotvec.shape == torch.Size([3]), (
+        f"Invalid rotation vector shape: {rotvec.shape}"
+    )
     return RotationObj(torch.ops.torchrot.rotvec2quat(rotvec))
 
 

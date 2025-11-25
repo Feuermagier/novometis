@@ -2,28 +2,37 @@
 #
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.20)
 project(polymetis)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
-add_library(protobuf::libprotobuf UNKNOWN IMPORTED)
-set_target_properties(protobuf::libprotobuf PROPERTIES
-  INTERFACE_INCLUDE_DIRECTORIES "$ENV{CONDA_PREFIX}/include/google/protobuf/")
-set_target_properties(protobuf::libprotobuf PROPERTIES
-  IMPORTED_LOCATION "$ENV{CONDA_PREFIX}/lib/libprotobuf.so")
-set_property(TARGET protobuf::libprotobuf APPEND PROPERTY
-  INTERFACE_COMPILE_FEATURES cxx_std_11
-)
+set(Protobuf_INCLUDE_DIR "$ENV{CONDA_PREFIX}/include")
+set(Protobuf_LIBRARY "$ENV{CONDA_PREFIX}/lib/libprotobuf.so")
+set(Protobuf_PROTOC_EXECUTABLE "$ENV{CONDA_PREFIX}/bin/protoc")
+set(Protobuf_PROTOC_LIBRARY "$ENV{CONDA_PREFIX}/lib/libprotoc.so")
+
+# We use "MODULE" to force CMake to use its own helper script, 
+# but we feed it the specific paths above so it doesn't wander off to /usr/lib
+find_package(Protobuf 3.20 REQUIRED MODULE)
+
+# Create the target if it wasn't created automatically
+if(NOT TARGET protobuf::libprotobuf)
+    add_library(protobuf::libprotobuf UNKNOWN IMPORTED)
+    set_target_properties(protobuf::libprotobuf PROPERTIES
+        INTERFACE_INCLUDE_DIRECTORIES "${Protobuf_INCLUDE_DIRS}")
+    set_target_properties(protobuf::libprotobuf PROPERTIES
+        IMPORTED_LOCATION "${Protobuf_LIBRARY}")
+endif()
 
 add_subdirectory("torch_isolation/")
 
 if(DEFINED ENV{PREFIX})
   message("Using $ENV{PREFIX} as output dir")
   set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY $ENV{PREFIX}/lib)
-  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY $ENV{PREFIX}/lib)
+  # set(CMAKE_LIBRARY_OUTPUT_DIRECTORY $ENV{PREFIX}/lib)
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY $ENV{PREFIX}/bin)
 endif()
 
@@ -97,6 +106,13 @@ target_link_libraries(generated_grpc_protos
     ${_REFLECTION}
     ${_GRPC_GRPCPP}
     ${_PROTOBUF_LIBPROTOBUF}
+)
+
+# Install generated Python files directly into the package root
+install(FILES 
+    "${CMAKE_CURRENT_BINARY_DIR}/polymetis_pb2.py" 
+    "${CMAKE_CURRENT_BINARY_DIR}/polymetis_pb2_grpc.py"
+    DESTINATION . # HACK: Installs the files directly into site-packages/
 )
 
 if(BUILD_SERVER)

@@ -8,13 +8,50 @@ from typing import Optional, Tuple
 import torch
 
 # load the custom C++ library for Pinocchio operations
-pinocchio_path = find_library("torchscript_pinocchio")
-if pinocchio_path is None:
-    raise ImportError(
-        "Could not find 'libtorchscript_pinocchio.so' library. "
-        "Make sure it is built and available in the library path."
+# pinocchio_path = find_library("torchscript_pinocchio")
+# if pinocchio_path is None:
+#     raise ImportError(
+#         "Could not find 'libtorchscript_pinocchio.so' library. "
+#         "Make sure it is built and available in the library path."
+#     )
+# torch.classes.load_library(pinocchio_path)
+
+def load_torch_library(lib_name):
+    import os
+    import sysconfig
+
+    filename = f"lib{lib_name}.so" 
+    # (Add logic here if you need to support .dylib or .dll later)
+
+    # 1. Try finding it relative to this file 
+    #    (Works for production Wheels and Standard Installs)
+    local_path = os.path.join(os.path.dirname(__file__), "lib", filename)
+    if os.path.exists(local_path):
+        torch.classes.load_library(local_path)
+        return
+
+    # 2. Try finding it in the environment's site-packages 
+    #    (Works for Editable Installs with Split Layout)
+    #    This gets the path to .venv/lib/python3.X/site-packages
+    site_packages = sysconfig.get_paths()["platlib"] 
+    
+    # Check site-packages/polymetis/lib/libname.so
+    installed_path = os.path.join(site_packages, "polymetis", "lib", filename)
+    
+    if os.path.exists(installed_path):
+        torch.classes.load_library(installed_path)
+        return
+
+    # 3. Give up
+    raise FileNotFoundError(
+        f"Could not find {filename}. \n"
+        f"Checked local source: {local_path}\n"
+        f"Checked site-packages: {installed_path}"
     )
-torch.classes.load_library(pinocchio_path)
+
+# --- Load your libraries ---
+# Note: Load dependency (torchrot) first if needed, though RPATH should handle it.
+load_torch_library("torchscript_pinocchio")
 
 
 class RobotModelPinocchio(torch.nn.Module):
