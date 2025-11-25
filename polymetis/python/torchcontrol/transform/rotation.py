@@ -24,8 +24,6 @@ def load_torch_library(lib_name):
 
     filename = f"lib{lib_name}.so"
     site_packages = sysconfig.get_paths()["platlib"]
-
-    # Check site-packages/polymetis/lib/libname.so
     installed_path = os.path.join(site_packages, "polymetis", "lib", filename)
 
     if not os.path.exists(installed_path):

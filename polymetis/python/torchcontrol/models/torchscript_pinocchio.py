@@ -20,37 +20,15 @@ def load_torch_library(lib_name):
     import os
     import sysconfig
 
-    filename = f"lib{lib_name}.so" 
-    # (Add logic here if you need to support .dylib or .dll later)
-
-    # 1. Try finding it relative to this file 
-    #    (Works for production Wheels and Standard Installs)
-    local_path = os.path.join(os.path.dirname(__file__), "lib", filename)
-    if os.path.exists(local_path):
-        torch.classes.load_library(local_path)
-        return
-
-    # 2. Try finding it in the environment's site-packages 
-    #    (Works for Editable Installs with Split Layout)
-    #    This gets the path to .venv/lib/python3.X/site-packages
-    site_packages = sysconfig.get_paths()["platlib"] 
-    
-    # Check site-packages/polymetis/lib/libname.so
+    filename = f"lib{lib_name}.so"
+    site_packages = sysconfig.get_paths()["platlib"]
     installed_path = os.path.join(site_packages, "polymetis", "lib", filename)
-    
-    if os.path.exists(installed_path):
-        torch.classes.load_library(installed_path)
-        return
 
-    # 3. Give up
-    raise FileNotFoundError(
-        f"Could not find {filename}. \n"
-        f"Checked local source: {local_path}\n"
-        f"Checked site-packages: {installed_path}"
-    )
+    if not os.path.exists(installed_path):
+        raise FileNotFoundError(f"Could not find {filename} at {installed_path}")
 
-# --- Load your libraries ---
-# Note: Load dependency (torchrot) first if needed, though RPATH should handle it.
+    torch.classes.load_library(installed_path)
+
 load_torch_library("torchscript_pinocchio")
 
 
