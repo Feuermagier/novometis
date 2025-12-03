@@ -28,6 +28,8 @@ dependencies = [
 # Points to the directory containing the root CMakeLists.txt
 cmake.source-dir = "polymetis"
 
+build-dir = "build"
+
 # PASSING CONDA ENVIRONMENT TO CMAKE
 # We map the $CONDA_PREFIX environment variable to CMAKE_PREFIX_PATH.
 # This tells CMake: "Look for libraries here first."
