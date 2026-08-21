@@ -23,6 +23,11 @@ def main(cfg):
     log.info(f"Adding {BUILD_DIR} to $PATH")
     os.environ["PATH"] = BUILD_DIR + os.pathsep + os.environ["PATH"]
 
+    # Resolve a declared serial port before forking so Hydra reports a missing
+    # mandatory value without leaving a server process running.
+    if cfg.gripper and "port" in cfg.gripper.keys():
+        _ = cfg.gripper.port
+
     if cfg.gripper:
         pid = os.fork()
     else:

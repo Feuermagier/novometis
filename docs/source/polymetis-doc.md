@@ -42,3 +42,9 @@ gripper.goto(width=0.01, speed=0.05)
 gripper.grasp(speed=0.05, force=0.1)
 ```
 `ip_address` is the IP of the Controller Manager Server. Since we're launching it locally in this example, the IP will be `localhost`.
+
+For the Robotiq 2F adapter, use `force=0.0` for its minimum-force mode or a
+value within the configured model range (20--235 N for the default 2F-85
+configuration). Minimum-force mode does not mean zero physical force.
+`blocking=True` confirms that the command RPC completed, poll `get_state()` to
+verify hardware acceptance and motion completion.

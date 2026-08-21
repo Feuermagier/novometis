@@ -70,6 +70,8 @@ message GripperMetadata {
   string polymetis_version = 1;
   int32 hz = 2;
   float max_width = 3;
+  // String identifier used by clients to reject a mismatched gripper service.
+  string gripper_type = 4;
 }
 
 message GripperCommand {

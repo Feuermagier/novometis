@@ -109,6 +109,7 @@ class SimInterface:
         state_callback: Callable,
         action_callback: Callable,
         max_width: Optional[float] = 0.0,
+        gripper_type: str = "simulated",
     ):
         # Construct metadata
         metadata = polymetis_pb2.GripperMetadata()
@@ -116,6 +117,7 @@ class SimInterface:
         metadata.hz = self.hz
 
         metadata.max_width = max_width
+        metadata.gripper_type = gripper_type
 
         # Connect to service
         channel = grpc.insecure_channel(server_address)

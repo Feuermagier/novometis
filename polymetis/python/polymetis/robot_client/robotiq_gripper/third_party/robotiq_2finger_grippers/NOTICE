@@ -1,0 +1,12 @@
+Robotiq 2F Modbus driver
+========================
+
+The file robotiq_2f_gripper_refactored.py is derived from the RLinf Robotiq
+driver:
+
+https://github.com/RLinf/RLinf/blob/e62de7767f41a61d58eb15d916e8809c70610672/rlinf/envs/realworld/common/gripper/robotiq_gripper.py
+
+Copyright 2025 The RLinf Authors.
+
+Licensed under the Apache License, Version 2.0. This derivative contains
+substantial modifications for the Novometis Polymetis hardware client.

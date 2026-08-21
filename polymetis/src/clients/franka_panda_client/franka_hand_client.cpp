@@ -30,6 +30,7 @@ FrankaHandClient::FrankaHandClient(std::shared_ptr<grpc::Channel> channel,
   GripperMetadata metadata;
   metadata.set_max_width(franka_gripper_state.max_width);
   metadata.set_hz(GRIPPER_HZ);
+  metadata.set_gripper_type("franka_hand");
 
   ClientContext context;
   Empty empty;

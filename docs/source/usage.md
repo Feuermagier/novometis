@@ -50,17 +50,21 @@ To **debug custom TorchScript policies**, TorchScript can directly script `print
 
 We currently support two grippers: Franka Hand and Robotiq 2F Gripper.
 
-To run the gripper server:
+From the `polymetis` source directory, run the Franka Hand server:
 ```bash
-launch_gripper.py gripper=<franka_hand|robotiq_2f>
+python python/scripts/launch_gripper.py gripper=franka_hand
 ```
 
 `launch_gripper.py` launches a service that exposes gripper functionality to a connected `GripperInterface`. 
 
-You can modify the configuration on the command line through Hydra. For example, to change the comport (communication port) while using the [Robotiq 2F gripper config](https://github.com/facebookresearch/fairo/blob/main/polymetis/polymetis/conf/gripper/robotiq_2f.yaml):
+The Robotiq serial device is deployment-specific and has no default. Set
+`ROBOTIQ_PORT` to the stable `/dev/serial/by-id/...` path for the intended
+adapter, then pass it through Hydra when using the Robotiq 2F gripper config:
 
 ```bash
-launch_gripper.py gripper=robotiq_2f gripper.comport=/dev/ttyUSB1
+python python/scripts/launch_gripper.py \
+    gripper=robotiq_2f \
+    gripper.port="${ROBOTIQ_PORT}"
 ```
 
 ## Using the Allegro Hand Client

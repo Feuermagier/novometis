@@ -1,5 +1,38 @@
+# @package _global_
+
 gripper:
   _target_: polymetis.robot_client.robotiq_gripper.RobotiqGripperClient
   server_ip: ${ip}
   server_port: ${port}
-  comport: /dev/ttyUSB0
+  # Deployment-specific and intentionally has no default. Prefer a stable
+  # /dev/serial/by-id/... path supplied by the launcher.
+  port: ???
+  # Hardware-tested rate for the current FC04 + conditional FC16 loop.
+  hz: 100
+  baudrate: 115200
+  slave_id: 9
+
+  # Default Robotiq 2F-85 specifications: https://assets.robotiq.com/website-assets/support_documents/document/2F-85_2F-140_Instruction_Manual_CB-Series_PDF_20190206.pdf
+  max_width: 0.085
+  model_min_speed_m_s: 0.020
+  model_max_speed_m_s: 0.150
+  model_min_force_n: 20.0
+  model_max_force_n: 235.0
+
+  # Application derived values, conversions are still based on the model limits above.
+  max_command_speed_m_s: 0.150
+  max_command_force_n: 235.0
+
+  # Calibrated request endpoints used by the high-level width conversion.
+  # The low-level raw driver still accepts the full protocol range 0..255.
+  open_position_request: 3
+  closed_position_request: 230
+
+  # Measured gPO endpoints during testing.
+  open_position_feedback: 3
+  closed_position_feedback: 230
+
+  activation_timeout: 5.0
+  poll_interval: 0.1
+  grpc_timeout: 1.0
+  max_command_state_age: 0.25
