@@ -241,7 +241,7 @@ def connect_to_server(args):
 
 
 def wait_for_initial_state(gripper, timeout, poll_interval):
-    """Require two observations so a stale broker cache cannot look healthy."""
+    """Require two observations so stale cached state cannot look healthy."""
     deadline = time.monotonic() + timeout
     first_timestamp = None
     last_state = None
@@ -263,7 +263,7 @@ def wait_for_initial_state(gripper, timeout, poll_interval):
 
     detail = format_state(last_state) if last_state is not None else "no state"
     raise TimeoutError(
-        "No advancing hardware timestamp arrived; the broker cache may be "
+        "No advancing hardware timestamp arrived; the server cache may be "
         f"stale. Last state: {detail}"
     )
 
@@ -574,7 +574,7 @@ def summarize_state_frequency(label, samples, late_starts, requested_hz):
 
 def run_state_frequency_diagnostic(gripper, args):
     print(
-        "[STATE FREQUENCY | START] Read-only sampling of the broker's cached "
+        "[STATE FREQUENCY | START] Read-only sampling of the server's cached "
         "GripperState. Distinct timestamps correspond to successful FC04 "
         "snapshots published by the hardware client."
     )
@@ -724,8 +724,8 @@ def run_control_frequency_diagnostic(gripper, max_width, args):
     )
     if observed:
         print(
-            "[CONTROL FREQUENCY | OBSERVED] Broker ingress and distinct loaded "
-            "hardware snapshots both reached at least 90% of the target."
+            "[CONTROL FREQUENCY | OBSERVED] Command ingress and distinct "
+            "loaded hardware snapshots both reached at least 90% of the target."
         )
     else:
         print(
