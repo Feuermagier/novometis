@@ -23,15 +23,7 @@ gripper:
   max_command_speed_m_s: 0.150
   max_command_force_n: 235.0
 
-  # Calibrated request endpoints used by the high-level width conversion.
-  # The low-level raw driver still accepts the full protocol range 0..255.
-  open_position_request: 3
-  closed_position_request: 230
-
-  # Measured gPO endpoints during testing.
-  open_position_feedback: 3
-  closed_position_feedback: 230
-
+  response_timeout: 1.0
   activation_timeout: 5.0
   poll_interval: 0.1
   grpc_timeout: 1.0
