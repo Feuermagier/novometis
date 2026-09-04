@@ -7,14 +7,26 @@ from typing import Optional, Tuple
 
 import torch
 
+def load_torch_lib(name: str):
+
+    import os
+
+    path = find_library(name)
+    if path is None:
+        raise ImportError(
+            f"Could not find 'lib{name}.so' library. "
+            "Make sure it is built and available in the library path."
+        )
+
+    # Pull library from conda env, as env must exist for novometis
+    path_prefix = os.environ['CONDA_PREFIX']
+    full_path = os.path.join(path_prefix, "lib", path)
+
+    torch.classes.load_library(full_path)
+
+
 # load the custom C++ library for Pinocchio operations
-pinocchio_path = find_library("torchscript_pinocchio")
-if pinocchio_path is None:
-    raise ImportError(
-        "Could not find 'libtorchscript_pinocchio.so' library. "
-        "Make sure it is built and available in the library path."
-    )
-torch.classes.load_library(pinocchio_path)
+load_torch_lib("torchscript_pinocchio")
 
 
 class RobotModelPinocchio(torch.nn.Module):

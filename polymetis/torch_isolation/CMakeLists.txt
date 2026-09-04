@@ -25,15 +25,12 @@ set(Torch_DIR "${site_packages_path}/torch/share/cmake/Torch/")
 find_package(Torch REQUIRED)
 
 # Find Eigen
-if(NOT TARGET Eigen3)
-    find_package(Eigen3 REQUIRED)
-endif()
+find_package(Eigen3 CONFIG REQUIRED)
 
 # Define common include directories
-set(COMMON_INCLUDE_DIRS 
+set(COMMON_INCLUDE_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${TORCH_INCLUDE_DIRS}
-    ${EIGEN3_INCLUDE_DIR}
 )
 
 add_library(torch_server_ops SHARED src/torch_server_ops.cpp)
@@ -45,9 +42,14 @@ target_link_libraries(torch_server_ops PRIVATE
 
 add_library(torchrot SHARED src/rotations.cpp)
 set_target_properties(torchrot PROPERTIES CXX_VISIBILITY_PRESET hidden)
-target_include_directories(torchrot PUBLIC ${COMMON_INCLUDE_DIRS})
+
+target_include_directories(torchrot PUBLIC
+    ${COMMON_INCLUDE_DIRS}
+)
+
 target_link_libraries(torchrot PRIVATE
     ${TORCH_LIBRARIES}
+    Eigen3::Eigen
 )
 
 add_library(torchscript_pinocchio SHARED src/pinocchio.cpp)
